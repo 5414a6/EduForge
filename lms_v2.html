@@ -1,0 +1,1296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduForge LMS</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0b0d12; --surface:#12151d; --surface2:#181c27; --surface3:#1e2232;
+  --border:#252a3a; --border2:#2e354a;
+  --accent:#5eead4; --accent-dim:rgba(94,234,212,0.12);
+  --indigo:#818cf8; --pink:#f472b6; --amber:#fbbf24;
+  --bronze:#cd7c3e; --silver:#94a3b8; --gold:#fbbf24; --master:#a78bfa;
+  --text:#e2e8f0; --muted:#64748b; --muted2:#475569;
+  --r:13px; --r-sm:9px;
+  --shadow:0 8px 32px rgba(0,0,0,0.5);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+button{font-family:'DM Sans',sans-serif;cursor:pointer;}
+input,select,textarea{font-family:'DM Sans',sans-serif;}
+
+/* ══ SCROLLBAR ══ */
+::-webkit-scrollbar{width:5px;} ::-webkit-scrollbar-track{background:var(--bg);} ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+
+/* ══ UTILITY ══ */
+.hidden{display:none!important;}
+.flex{display:flex;} .items-center{align-items:center;} .justify-between{justify-content:space-between;} .gap-8{gap:8px;} .gap-12{gap:12px;}
+.font-syne{font-family:'Syne',sans-serif;}
+.fw-800{font-weight:800;} .fw-700{font-weight:700;} .fw-600{font-weight:600;}
+
+/* ══════════════════════════════
+   LOGIN PAGE
+══════════════════════════════ */
+#login-page {
+  min-height:100vh;
+  display:flex;align-items:center;justify-content:center;
+  background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(94,234,212,0.08) 0%, transparent 70%),
+              radial-gradient(ellipse 50% 40% at 80% 80%, rgba(129,140,248,0.06) 0%, transparent 60%),
+              var(--bg);
+  padding:20px;
+}
+.login-wrap {
+  width:100%;max-width:440px;
+  animation: fadeUp 0.5s ease;
+}
+.login-logo {
+  text-align:center;margin-bottom:36px;
+}
+.login-logo .brand {
+  font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;
+  color:var(--text);letter-spacing:-1px;
+}
+.login-logo .brand span{color:var(--accent);}
+.login-logo .tagline{color:var(--muted);font-size:0.85rem;margin-top:4px;}
+
+.role-picker {
+  display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:28px;
+}
+.role-btn {
+  padding:16px 10px;
+  border-radius:var(--r);
+  border:1.5px solid var(--border);
+  background:var(--surface);
+  color:var(--muted);
+  font-size:0.82rem;font-weight:600;
+  text-align:center;
+  cursor:pointer;
+  transition:all 0.2s;
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+}
+.role-btn .role-icon{font-size:1.6rem;}
+.role-btn:hover{border-color:var(--border2);color:var(--text);}
+.role-btn.selected{border-color:var(--accent);background:rgba(94,234,212,0.07);color:var(--accent);}
+
+.login-card {
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  padding:32px;
+}
+.login-title {
+  font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:700;
+  margin-bottom:24px;
+}
+.form-group{margin-bottom:16px;}
+.form-label{display:block;font-size:0.75rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:7px;}
+.form-input{width:100%;padding:11px 15px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);color:var(--text);font-size:0.9rem;outline:none;transition:border-color 0.2s;}
+.form-input:focus{border-color:var(--accent);}
+textarea.form-input{resize:vertical;min-height:90px;}
+select.form-input option{background:var(--surface2);}
+
+.hint-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px 16px;margin-bottom:20px;font-size:0.78rem;color:var(--muted);line-height:1.6;}
+.hint-box strong{color:var(--accent);font-weight:600;}
+
+.btn-login{width:100%;padding:13px;background:var(--accent);color:#0b0d12;font-weight:700;font-size:0.95rem;border:none;border-radius:var(--r-sm);transition:opacity 0.2s;margin-top:4px;}
+.btn-login:hover{opacity:0.85;}
+
+/* ══════════════════════════════
+   APP SHELL
+══════════════════════════════ */
+#app{display:none;flex-direction:column;min-height:100vh;}
+
+/* ── NAV ── */
+nav {
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 32px;
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  position:sticky;top:0;z-index:200;
+}
+.nav-brand{font-family:'Syne',sans-serif;font-weight:800;font-size:1.25rem;letter-spacing:-0.5px;}
+.nav-brand span{color:var(--accent);}
+.nav-center{display:flex;gap:4px;background:var(--surface2);border-radius:9px;padding:4px;}
+.nav-tab{padding:7px 18px;border-radius:7px;font-size:0.82rem;font-weight:600;cursor:pointer;color:var(--muted);border:none;background:transparent;transition:all 0.18s;white-space:nowrap;}
+.nav-tab.active{background:var(--accent);color:#0b0d12;}
+.nav-tab:not(.active):hover{color:var(--text);}
+.nav-right{display:flex;align-items:center;gap:12px;}
+.user-chip{display:flex;align-items:center;gap:8px;padding:6px 12px 6px 6px;background:var(--surface2);border:1px solid var(--border);border-radius:99px;font-size:0.8rem;}
+.user-chip .av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.72rem;color:white;flex-shrink:0;}
+.logout-btn{padding:7px 14px;border-radius:var(--r-sm);background:transparent;border:1px solid var(--border);color:var(--muted);font-size:0.78rem;font-weight:600;transition:all 0.2s;}
+.logout-btn:hover{border-color:var(--pink);color:var(--pink);}
+
+/* ── MAIN ── */
+main{flex:1;overflow-y:auto;}
+.page{display:none;padding:36px 32px;max-width:1180px;margin:0 auto;}
+.page.active{display:block;animation:fadeUp 0.3s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+/* ══ COMMON COMPONENTS ══ */
+.page-header{margin-bottom:28px;}
+.page-title{font-family:'Syne',sans-serif;font-size:1.9rem;font-weight:800;margin-bottom:4px;}
+.page-sub{color:var(--muted);font-size:0.9rem;}
+
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:32px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px;position:relative;overflow:hidden;}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.stat-card:nth-child(1)::before{background:var(--accent);}
+.stat-card:nth-child(2)::before{background:var(--indigo);}
+.stat-card:nth-child(3)::before{background:var(--pink);}
+.stat-card:nth-child(4)::before{background:var(--amber);}
+.stat-label{font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.9px;margin-bottom:7px;}
+.stat-val{font-family:'Syne',sans-serif;font-size:1.9rem;font-weight:800;}
+.stat-delta{font-size:0.75rem;color:var(--accent);margin-top:3px;}
+
+.section-hd{font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;margin:28px 0 14px;display:flex;align-items:center;gap:10px;}
+.section-hd::after{content:'';flex:1;height:1px;background:var(--border);}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:22px;transition:border-color 0.2s,transform 0.2s;}
+.card:hover{border-color:var(--border2);}
+
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 20px;border-radius:var(--r-sm);font-size:0.83rem;font-weight:600;border:none;transition:all 0.18s;white-space:nowrap;}
+.btn-primary{background:var(--accent);color:#0b0d12;}
+.btn-primary:hover{opacity:0.85;}
+.btn-ghost{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-ghost:hover{border-color:var(--border2);}
+.btn-danger{background:rgba(244,114,182,0.12);color:var(--pink);border:1px solid rgba(244,114,182,0.25);}
+.btn-danger:hover{background:rgba(244,114,182,0.2);}
+.btn-sm{padding:6px 13px;font-size:0.77rem;}
+.btn-indigo{background:rgba(129,140,248,0.15);color:var(--indigo);border:1px solid rgba(129,140,248,0.25);}
+
+.tag{display:inline-block;padding:3px 10px;border-radius:99px;font-size:0.7rem;font-weight:600;}
+.tag-green{background:rgba(94,234,212,0.12);color:var(--accent);}
+.tag-yellow{background:rgba(251,191,36,0.12);color:var(--amber);}
+.tag-red{background:rgba(244,114,182,0.12);color:var(--pink);}
+.tag-blue{background:rgba(129,140,248,0.12);color:var(--indigo);}
+
+.progress-bar{height:6px;background:var(--surface2);border-radius:99px;overflow:hidden;}
+.progress-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--indigo),var(--accent));transition:width 0.7s ease;}
+
+table{width:100%;border-collapse:collapse;}
+th{text-align:left;padding:10px 16px;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.9px;color:var(--muted);border-bottom:1px solid var(--border);}
+td{padding:13px 16px;font-size:0.87rem;border-bottom:1px solid var(--border);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(255,255,255,0.015);}
+
+.avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem;color:white;flex-shrink:0;}
+
+/* ══ BADGE SYSTEM ══ */
+.badges-row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:24px;}
+.badge{display:flex;flex-direction:column;align-items:center;gap:7px;padding:18px 24px;border-radius:var(--r);border:1px solid var(--border);background:var(--surface);min-width:100px;position:relative;transition:transform 0.2s;}
+.badge:hover{transform:translateY(-2px);}
+.badge-icon{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.3rem;}
+.badge-name{font-family:'Syne',sans-serif;font-weight:700;font-size:0.8rem;}
+.badge-req{font-size:0.68rem;color:var(--muted);}
+.badge.locked{opacity:0.35;filter:grayscale(1);}
+.badge.earned::after{content:'✓';position:absolute;top:7px;right:7px;width:17px;height:17px;border-radius:50%;background:var(--accent);color:#0b0d12;font-size:0.6rem;font-weight:900;display:flex;align-items:center;justify-content:center;line-height:17px;text-align:center;}
+.badge-bronze .badge-icon{background:radial-gradient(circle at 35% 35%,#e8a06a,#a0522d);box-shadow:0 0 14px rgba(205,124,62,0.35);}
+.badge-bronze{border-color:rgba(205,124,62,0.3);}
+.badge-bronze .badge-name{color:var(--bronze);}
+.badge-silver .badge-icon{background:radial-gradient(circle at 35% 35%,#d0d8e8,#8898aa);box-shadow:0 0 14px rgba(148,163,184,0.35);}
+.badge-silver{border-color:rgba(148,163,184,0.3);}
+.badge-silver .badge-name{color:var(--silver);}
+.badge-gold .badge-icon{background:radial-gradient(circle at 35% 35%,#fde68a,#d97706);box-shadow:0 0 18px rgba(251,191,36,0.45);animation:goldPulse 2.5s ease-in-out infinite;}
+.badge-gold{border-color:rgba(251,191,36,0.35);}
+.badge-gold .badge-name{color:var(--gold);}
+@keyframes goldPulse{0%,100%{box-shadow:0 0 18px rgba(251,191,36,0.45);}50%{box-shadow:0 0 32px rgba(251,191,36,0.8);}}
+.badge-master .badge-icon{background:radial-gradient(circle at 35% 35%,#ddd6fe,#7c3aed);box-shadow:0 0 22px rgba(167,139,250,0.6);animation:masterPulse 2s ease-in-out infinite;}
+.badge-master{border-color:rgba(167,139,250,0.45);background:linear-gradient(135deg,#12151d,#1a1530);}
+.badge-master .badge-name{color:var(--master);}
+@keyframes masterPulse{0%,100%{box-shadow:0 0 22px rgba(167,139,250,0.6);}50%{box-shadow:0 0 40px rgba(167,139,250,1);}}
+
+/* ══ COURSE BROWSE CARD ══ */
+.course-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+.course-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;cursor:pointer;transition:transform 0.2s,border-color 0.2s;}
+.course-card:hover{transform:translateY(-3px);border-color:var(--border2);}
+.course-thumb{height:130px;display:flex;align-items:center;justify-content:center;font-size:2.8rem;}
+.thumb-1{background:linear-gradient(135deg,#1e3a5f,#1e40af);}
+.thumb-2{background:linear-gradient(135deg,#064e3b,#065f46);}
+.thumb-3{background:linear-gradient(135deg,#831843,#9d174d);}
+.thumb-4{background:linear-gradient(135deg,#312e81,#4c1d95);}
+.thumb-5{background:linear-gradient(135deg,#78350f,#92400e);}
+.thumb-6{background:linear-gradient(135deg,#1e293b,#334155);}
+.course-body{padding:16px;}
+.course-name{font-family:'Syne',sans-serif;font-weight:700;font-size:0.95rem;margin-bottom:3px;}
+.course-instructor{font-size:0.75rem;color:var(--muted);margin-bottom:12px;}
+.course-meta{display:flex;gap:10px;font-size:0.72rem;color:var(--muted);}
+
+/* ══ LESSON PLAYER ══ */
+.lesson-layout{display:grid;grid-template-columns:1fr 300px;gap:20px;align-items:start;}
+.lesson-video{background:var(--surface2);border-radius:var(--r);height:300px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;border:1px solid var(--border);position:relative;overflow:hidden;margin-bottom:16px;}
+.lesson-video::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(30,58,95,0.4),rgba(13,13,18,0.5));}
+.play-btn{width:58px;height:58px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:1.3rem;cursor:pointer;position:relative;z-index:1;border:none;transition:transform 0.2s;}
+.play-btn:hover{transform:scale(1.1);}
+.lesson-list{display:flex;flex-direction:column;gap:6px;padding:14px;}
+.lesson-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:9px;background:transparent;border:1px solid transparent;cursor:pointer;transition:all 0.15s;font-size:0.85rem;}
+.lesson-item:hover{background:var(--surface2);}
+.lesson-item.active{border-color:var(--accent);background:rgba(94,234,212,0.06);}
+.lesson-item.done .lesson-num{background:var(--accent);color:#0b0d12;border-color:var(--accent);}
+.lesson-num{width:26px;height:26px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:0.68rem;font-weight:700;flex-shrink:0;}
+
+/* ══ UPLOAD ZONE ══ */
+.upload-zone{border:2px dashed var(--border);border-radius:var(--r);padding:32px;text-align:center;cursor:pointer;transition:border-color 0.2s;margin:14px 0;}
+.upload-zone:hover{border-color:var(--accent);}
+
+/* ══ MODAL ══ */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn 0.2s ease;}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+.modal{background:var(--surface);border:1px solid var(--border2);border-radius:var(--r);padding:28px;max-width:520px;width:100%;max-height:90vh;overflow-y:auto;animation:slideUp 0.25s ease;}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.modal-title{font-family:'Syne',sans-serif;font-weight:700;font-size:1.1rem;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;}
+.modal-close{background:transparent;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;line-height:1;}
+.modal-close:hover{color:var(--text);}
+
+/* ══ TOAST ══ */
+.toast-wrap{position:fixed;bottom:24px;right:24px;z-index:999;display:flex;flex-direction:column;gap:8px;pointer-events:none;}
+.toast{padding:12px 18px;border-radius:var(--r-sm);font-size:0.85rem;font-weight:600;animation:toastIn 0.3s ease,toastOut 0.3s ease 2.7s forwards;max-width:320px;}
+.toast-success{background:#0f2e26;border:1px solid rgba(94,234,212,0.3);color:var(--accent);}
+.toast-error{background:#2e0f1a;border:1px solid rgba(244,114,182,0.3);color:var(--pink);}
+@keyframes toastIn{from{opacity:0;transform:translateX(20px);}to{opacity:1;transform:translateX(0);}}
+@keyframes toastOut{to{opacity:0;transform:translateX(20px);}}
+
+/* ══ EMPTY STATE ══ */
+.empty{text-align:center;padding:48px 24px;color:var(--muted);}
+.empty .empty-icon{font-size:3rem;margin-bottom:12px;opacity:0.5;}
+.empty p{font-size:0.9rem;}
+
+/* ══ NOTIF DOT ══ */
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--pink);margin-left:4px;animation:blink 1.5s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.3;}}
+
+/* ══ WELCOME BANNER ══ */
+.welcome-banner{background:linear-gradient(135deg,#151a26,#1a2035);border:1px solid var(--border);border-radius:var(--r);padding:26px 30px;margin-bottom:26px;display:flex;align-items:center;justify-content:space-between;overflow:hidden;position:relative;}
+.welcome-banner::after{content:'🎓';position:absolute;right:28px;top:50%;transform:translateY(-50%);font-size:4.5rem;opacity:0.07;pointer-events:none;}
+
+/* ══ GRID HELPERS ══ */
+.g2{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+
+/* ══ MISC ══ */
+.chip{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:99px;font-size:0.7rem;font-weight:600;background:var(--surface2);border:1px solid var(--border);}
+.divider{height:1px;background:var(--border);margin:22px 0;}
+.text-muted{color:var(--muted);}
+.text-accent{color:var(--accent);}
+.text-pink{color:var(--pink);}
+.text-amber{color:var(--amber);}
+.mt-4{margin-top:4px;} .mt-8{margin-top:8px;} .mt-12{margin-top:12px;} .mt-16{margin-top:16px;} .mt-20{margin-top:20px;}
+.mb-16{margin-bottom:16px;} .mb-20{margin-bottom:20px;}
+.fs-sm{font-size:0.82rem;} .fs-xs{font-size:0.75rem;}
+</style>
+</head>
+<body>
+
+<!-- ████████████████████ LOGIN PAGE ████████████████████ -->
+<div id="login-page">
+  <div class="login-wrap">
+    <div class="login-logo">
+      <div class="brand">Edu<span>Forge</span></div>
+      <div class="tagline">Learning Management System</div>
+    </div>
+
+    <div style="margin-bottom:20px;">
+      <div style="font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;font-weight:600;margin-bottom:10px;">Sign in as</div>
+      <div class="role-picker">
+        <div class="role-btn selected" onclick="selectRole('student',this)">
+          <div class="role-icon">📚</div>
+          <div>Student</div>
+        </div>
+        <div class="role-btn" onclick="selectRole('instructor',this)">
+          <div class="role-icon">🎓</div>
+          <div>Instructor</div>
+        </div>
+        <div class="role-btn" onclick="selectRole('admin',this)">
+          <div class="role-icon">🛡</div>
+          <div>Admin</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="login-card">
+      <div class="login-title" id="login-title">Student Login</div>
+      <div class="hint-box" id="login-hint">
+        Demo: use any email · password: <strong>any</strong><br>
+        Try <strong>student@edu.com</strong> / <strong>123456</strong>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input class="form-input" type="email" id="login-email" placeholder="you@example.com" value="student@edu.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input class="form-input" type="password" id="login-password" placeholder="••••••••" value="123456">
+      </div>
+      <button class="btn-login" onclick="doLogin()">Sign In →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ████████████████████ APP SHELL ████████████████████ -->
+<div id="app">
+  <nav>
+    <div class="nav-brand">Edu<span>Forge</span></div>
+    <div class="nav-center" id="nav-tabs"></div>
+    <div class="nav-right">
+      <div class="user-chip" id="user-chip">
+        <div class="av" id="nav-avatar"></div>
+        <span id="nav-username"></span>
+        <span id="nav-role-badge" class="chip" style="font-size:0.65rem;padding:2px 8px;"></span>
+      </div>
+      <button class="logout-btn" onclick="doLogout()">Logout</button>
+    </div>
+  </nav>
+  <main>
+    <!-- ── STUDENT PAGES ── -->
+    <div id="page-s-home" class="page"></div>
+    <div id="page-s-browse" class="page"></div>
+    <div id="page-s-assignments" class="page"></div>
+    <div id="page-s-progress" class="page"></div>
+    <!-- ── INSTRUCTOR PAGES ── -->
+    <div id="page-i-dashboard" class="page"></div>
+    <div id="page-i-courses" class="page"></div>
+    <div id="page-i-assignments" class="page"></div>
+    <div id="page-i-submissions" class="page"></div>
+    <!-- ── ADMIN PAGES ── -->
+    <div id="page-a-overview" class="page"></div>
+    <div id="page-a-instructors" class="page"></div>
+    <div id="page-a-courses" class="page"></div>
+    <div id="page-a-students" class="page"></div>
+  </main>
+</div>
+
+<!-- MODAL CONTAINER -->
+<div id="modal-container"></div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script>
+// ════════════════════════════════════════
+// DATA STORE
+// ════════════════════════════════════════
+const DB = {
+  courses: [
+    {id:1,name:"Web Design Fundamentals",instructor:"Sara Ahmed",instructorId:2,thumb:"thumb-1",icon:"🎨",lessons:[{id:1,title:"Intro to HTML",dur:"12 min"},{id:2,title:"CSS Basics",dur:"18 min"},{id:3,title:"Grid & Flexbox",dur:"22 min"},{id:4,title:"Responsive Design",dur:"19 min"},{id:5,title:"Typography & Color",dur:"14 min"},{id:6,title:"Final Project",dur:"Assignment"}],status:"approved",students:142},
+    {id:2,name:"Python Fundamentals",instructor:"Karim Hassan",instructorId:3,thumb:"thumb-2",icon:"🐍",lessons:[{id:1,title:"Variables & Types",dur:"15 min"},{id:2,title:"Functions",dur:"20 min"},{id:3,title:"Lists & Dicts",dur:"18 min"},{id:4,title:"OOP Basics",dur:"25 min"},{id:5,title:"File I/O",dur:"16 min"}],status:"approved",students:89},
+    {id:3,name:"Data Analysis with Excel",instructor:"Sara Ahmed",instructorId:2,thumb:"thumb-3",icon:"📊",lessons:[{id:1,title:"Intro to Excel",dur:"10 min"},{id:2,title:"Formulas",dur:"22 min"},{id:3,title:"Pivot Tables",dur:"20 min"},{id:4,title:"Charts & Viz",dur:"18 min"}],status:"approved",students:55},
+    {id:4,name:"JavaScript Deep Dive",instructor:"Sara Ahmed",instructorId:2,thumb:"thumb-4",icon:"⚡",lessons:[{id:1,title:"ES6+ Features",dur:"20 min"},{id:2,title:"Async/Await",dur:"25 min"},{id:3,title:"DOM Manipulation",dur:"18 min"}],status:"pending",students:0},
+    {id:5,name:"UI/UX Principles",instructor:"Karim Hassan",instructorId:3,thumb:"thumb-5",icon:"🎯",lessons:[{id:1,title:"Design Thinking",dur:"15 min"},{id:2,title:"Wireframing",dur:"20 min"},{id:3,title:"Prototyping",dur:"22 min"}],status:"approved",students:34},
+    {id:6,name:"Digital Marketing",instructor:"Nadia Islam",instructorId:4,thumb:"thumb-6",icon:"📱",lessons:[{id:1,title:"SEO Basics",dur:"18 min"},{id:2,title:"Social Media",dur:"16 min"},{id:3,title:"Email Campaigns",dur:"14 min"}],status:"pending",students:0},
+  ],
+  assignments: [
+    {id:1,courseId:1,title:"Build a Responsive Landing Page",desc:"Create a fully responsive landing page using HTML/CSS from lessons 1–3.",due:"2026-04-20",maxScore:100,instructorId:2},
+    {id:2,courseId:2,title:"Data Structures Quiz",desc:"Answer 15 questions on arrays, linked lists, and trees.",due:"2026-04-10",maxScore:50,instructorId:3},
+    {id:3,courseId:3,title:"Sales Dashboard",desc:"Build an Excel dashboard with pivot tables and charts.",due:"2026-04-25",maxScore:80,instructorId:2},
+  ],
+  submissions: [
+    {id:1,assignmentId:1,studentId:1,studentName:"Ahmed Khan",file:"landing_page.zip",date:"2 days ago",grade:null},
+  ],
+  instructors: [
+    {id:2,name:"Sara Ahmed",email:"sara@edu.com",specialization:"Web Design",status:"approved",courses:3},
+    {id:3,name:"Karim Hassan",email:"karim@edu.com",specialization:"Programming",status:"approved",courses:2},
+    {id:4,name:"Nadia Islam",email:"nadia@edu.com",specialization:"Digital Marketing",status:"pending",courses:1},
+    {id:5,name:"Mohammed Rana",email:"m.rana@edu.bd",specialization:"Machine Learning",status:"pending",courses:0},
+    {id:6,name:"Tasnim Hossain",email:"t.hossain@teach.com",specialization:"UI/UX Design",status:"pending",courses:0},
+  ],
+  students: [
+    {id:1,name:"Ahmed Khan",email:"student@edu.com",enrolled:[1,2,3],progress:{1:{done:[1,2,3],pct:55},2:{done:[1,2,3,4],pct:80},3:{done:[1],pct:25}},badge:"silver"},
+    {id:7,name:"Fatima Siddiqui",email:"f.s@edu.com",enrolled:[1,2],progress:{1:{done:[1,2,3,4,5,6],pct:100},2:{done:[1,2,3,4,5],pct:100}},badge:"master"},
+    {id:8,name:"Rafiq Kamal",email:"r.k@edu.com",enrolled:[1,3],progress:{1:{done:[1,2,3,4,5],pct:90},3:{done:[1,2,3,4],pct:95}},badge:"gold"},
+    {id:9,name:"Sadia Rahman",email:"s.r@edu.com",enrolled:[1],progress:{1:{done:[1,2],pct:35}},badge:"bronze"},
+  ],
+  nextAssignmentId: 4,
+  nextSubmissionId: 2,
+};
+
+// ════════════════════════════════════════
+// AUTH
+// ════════════════════════════════════════
+let currentRole = 'student';
+let currentUser = null;
+
+const ROLES = {
+  student:    {label:"Student",    color:"#5eead4", bg:"rgba(94,234,212,0.15)"},
+  instructor: {label:"Instructor", color:"#818cf8", bg:"rgba(129,140,248,0.15)"},
+  admin:      {label:"Admin",      color:"#f472b6", bg:"rgba(244,114,182,0.15)"},
+};
+
+const NAV_CONFIG = {
+  student:    [{id:"s-home",label:"🏠 Home"},{id:"s-browse",label:"📚 Browse Courses"},{id:"s-assignments",label:"📋 Assignments"},{id:"s-progress",label:"📈 My Progress"}],
+  instructor: [{id:"i-dashboard",label:"🏠 Dashboard"},{id:"i-courses",label:"📚 My Courses"},{id:"i-assignments",label:"📋 Assignments"},{id:"i-submissions",label:"📥 Submissions"}],
+  admin:      [{id:"a-overview",label:"🏠 Overview"},{id:"a-instructors",label:"👩‍🏫 Instructors"},{id:"a-courses",label:"📚 Courses"},{id:"a-students",label:"👥 Students"}],
+};
+
+function selectRole(role, el) {
+  currentRole = role;
+  document.querySelectorAll('.role-btn').forEach(b=>b.classList.remove('selected'));
+  el.classList.add('selected');
+  const titles = {student:'Student Login',instructor:'Instructor Login',admin:'Admin Login'};
+  const hints = {
+    student: 'Demo: <strong>student@edu.com</strong> / any password',
+    instructor: 'Demo: <strong>sara@edu.com</strong> / any password',
+    admin: 'Demo: <strong>admin@edu.com</strong> / any password',
+  };
+  const emails = {student:'student@edu.com',instructor:'sara@edu.com',admin:'admin@edu.com'};
+  document.getElementById('login-title').textContent = titles[role];
+  document.getElementById('login-hint').innerHTML = hints[role];
+  document.getElementById('login-email').value = emails[role];
+}
+
+function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  if(!email){toast('Please enter your email','error');return;}
+
+  if(currentRole==='student'){
+    const s = DB.students.find(s=>s.email===email)||DB.students[0];
+    currentUser = {...s, role:'student'};
+  } else if(currentRole==='instructor'){
+    const i = DB.instructors.find(i=>i.email===email && i.status==='approved')||DB.instructors[0];
+    if(DB.instructors.find(i=>i.email===email)?.status==='pending'){
+      toast('Your account is pending admin approval','error');return;
+    }
+    currentUser = {...i, role:'instructor'};
+  } else {
+    currentUser = {id:0,name:'Admin User',email,role:'admin'};
+  }
+
+  document.getElementById('login-page').style.display='none';
+  document.getElementById('app').style.display='flex';
+  buildNav();
+  showFirstPage();
+  toast(`Welcome, ${currentUser.name}!`,'success');
+}
+
+function doLogout() {
+  currentUser=null;
+  document.getElementById('login-page').style.display='flex';
+  document.getElementById('app').style.display='none';
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+}
+
+// ════════════════════════════════════════
+// NAV
+// ════════════════════════════════════════
+function buildNav(){
+  const tabs = NAV_CONFIG[currentUser.role];
+  const container = document.getElementById('nav-tabs');
+  container.innerHTML = tabs.map((t,i)=>
+    `<button class="nav-tab${i===0?' active':''}" onclick="navTo('${t.id}',this)">${t.label}</button>`
+  ).join('');
+
+  const av = document.getElementById('nav-avatar');
+  const initials = currentUser.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  const colors = {student:'linear-gradient(135deg,#1e40af,#4f46e5)',instructor:'linear-gradient(135deg,#4f46e5,#7c3aed)',admin:'linear-gradient(135deg,#be185d,#db2777)'};
+  av.style.background = colors[currentUser.role];
+  av.textContent = initials;
+  document.getElementById('nav-username').textContent = currentUser.name.split(' ')[0];
+  const rb = document.getElementById('nav-role-badge');
+  rb.textContent = ROLES[currentUser.role].label;
+  rb.style.color = ROLES[currentUser.role].color;
+  rb.style.background = ROLES[currentUser.role].bg;
+  rb.style.borderColor = 'transparent';
+}
+
+function navTo(pageId, btn){
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  showPage(pageId);
+}
+
+function showFirstPage(){
+  const first = NAV_CONFIG[currentUser.role][0].id;
+  showPage(first);
+}
+
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const el = document.getElementById('page-'+id);
+  if(!el)return;
+  renderPage(id,el);
+  el.classList.add('active');
+  el.scrollTop=0;
+}
+
+// ════════════════════════════════════════
+// PAGE RENDERERS
+// ════════════════════════════════════════
+function renderPage(id, el){
+  const map = {
+    's-home': renderStudentHome,
+    's-browse': renderStudentBrowse,
+    's-assignments': renderStudentAssignments,
+    's-progress': renderStudentProgress,
+    'i-dashboard': renderInstructorDashboard,
+    'i-courses': renderInstructorCourses,
+    'i-assignments': renderInstructorAssignments,
+    'i-submissions': renderInstructorSubmissions,
+    'a-overview': renderAdminOverview,
+    'a-instructors': renderAdminInstructors,
+    'a-courses': renderAdminCourses,
+    'a-students': renderAdminStudents,
+  };
+  if(map[id]) map[id](el);
+}
+
+// ════════════
+// STUDENT PAGES
+// ════════════
+function renderStudentHome(el){
+  const u = currentUser;
+  const enrolledCourses = DB.courses.filter(c=>u.enrolled.includes(c.id));
+  const pct = avgProgress(u);
+  const badge = getBadge(pct);
+  el.innerHTML = `
+    <div class="page-header">
+      <div class="welcome-banner">
+        <div>
+          <div class="page-title">Welcome back, ${u.name.split(' ')[0]} 👋</div>
+          <div class="text-muted fs-sm mt-4">You're ${pct}% through your learning journey.</div>
+          <button class="btn btn-primary mt-12" onclick="navToId('s-browse')">Browse More Courses</button>
+        </div>
+      </div>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-label">Enrolled</div><div class="stat-val">${u.enrolled.length}</div><div class="stat-delta">courses</div></div>
+      <div class="stat-card"><div class="stat-label">Lessons Done</div><div class="stat-val">${totalLessonsDone(u)}</div><div class="stat-delta">↑ keep going!</div></div>
+      <div class="stat-card"><div class="stat-label">Assignments</div><div class="stat-val">${pendingAssignments(u).length}</div><div class="stat-delta">pending</div></div>
+      <div class="stat-card"><div class="stat-label">Progress</div><div class="stat-val">${pct}%</div><div class="stat-delta">${badge.name} badge</div></div>
+    </div>
+    <div class="section-hd">🏅 My Badges</div>
+    ${renderBadgesHTML(pct)}
+    <div class="progress-bar" style="height:10px;margin-bottom:6px;"><div class="progress-fill" style="width:${pct}%"></div></div>
+    <div style="display:flex;justify-content:space-between;font-size:0.7rem;color:var(--muted);margin-bottom:28px;"><span>🥉 25%</span><span>🥈 50%</span><span>🥇 90%</span><span>👑 100%</span></div>
+    <div class="section-hd">📚 Continue Learning</div>
+    <div class="course-grid">
+      ${enrolledCourses.map(c=>renderEnrolledCourseCard(c,u)).join('')}
+    </div>`;
+}
+
+function renderStudentBrowse(el){
+  const u = currentUser;
+  const approved = DB.courses.filter(c=>c.status==='approved');
+  el.innerHTML = `
+    <div class="page-header">
+      <div class="page-title">Browse Courses</div>
+      <div class="page-sub">Discover and enroll in new courses</div>
+    </div>
+    <div class="course-grid" id="browse-grid">
+      ${approved.map(c=>{
+        const enrolled = u.enrolled.includes(c.id);
+        return `<div class="course-card">
+          <div class="course-thumb ${c.thumb}">${c.icon}</div>
+          <div class="course-body">
+            <div class="course-name">${c.name}</div>
+            <div class="course-instructor">by ${c.instructor}</div>
+            <div class="course-meta">
+              <span>📺 ${c.lessons.length} lessons</span>
+              <span>👥 ${c.students}</span>
+            </div>
+            <div style="margin-top:12px;">
+              ${enrolled
+                ? `<button class="btn btn-ghost btn-sm" onclick="openCourse(${c.id})">▶ Continue</button>`
+                : `<button class="btn btn-primary btn-sm" onclick="enrollCourse(${c.id})">+ Enroll</button>`
+              }
+            </div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+
+function renderStudentAssignments(el){
+  const u = currentUser;
+  const myAssignments = DB.assignments.filter(a=>u.enrolled.includes(a.courseId));
+  const pending = myAssignments.filter(a=>!DB.submissions.find(s=>s.assignmentId===a.id&&s.studentId===u.id));
+  const submitted = myAssignments.filter(a=>DB.submissions.find(s=>s.assignmentId===a.id&&s.studentId===u.id));
+  el.innerHTML = `
+    <div class="page-header">
+      <div class="page-title">My Assignments</div>
+      <div class="page-sub">View and submit your assignments</div>
+    </div>
+    <div class="section-hd">⏳ Pending (${pending.length})</div>
+    ${pending.length===0?`<div class="empty"><div class="empty-icon">🎉</div><p>No pending assignments!</p></div>`:''}
+    ${pending.map(a=>{
+      const course = DB.courses.find(c=>c.id===a.courseId);
+      return `<div class="card mb-16">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px;">
+          <div>
+            <div class="font-syne fw-700 fs-sm">${a.title}</div>
+            <div class="text-muted fs-xs mt-4">${course?.name} · Due ${a.due} · Max: ${a.maxScore} pts</div>
+          </div>
+          <span class="tag tag-yellow">Pending</span>
+        </div>
+        <p class="fs-sm text-muted mb-16">${a.desc}</p>
+        <button class="btn btn-primary btn-sm" onclick="submitAssignment(${a.id})">📤 Submit</button>
+      </div>`;
+    }).join('')}
+    <div class="section-hd">✅ Submitted (${submitted.length})</div>
+    ${submitted.length===0?`<div class="empty"><div class="empty-icon">📭</div><p>No submissions yet</p></div>`:''}
+    ${submitted.map(a=>{
+      const course = DB.courses.find(c=>c.id===a.courseId);
+      const sub = DB.submissions.find(s=>s.assignmentId===a.id&&s.studentId===u.id);
+      return `<div class="card mb-16">
+        <div style="display:flex;justify-content:space-between;align-items:start;">
+          <div>
+            <div class="font-syne fw-700 fs-sm">${a.title}</div>
+            <div class="text-muted fs-xs mt-4">${course?.name} · Submitted ${sub?.date||'recently'}</div>
+          </div>
+          ${sub?.grade!=null ? `<span class="tag tag-green">Graded: ${sub.grade}/${a.maxScore}</span>` : `<span class="tag tag-blue">Under Review</span>`}
+        </div>
+      </div>`;
+    }).join('')}`;
+}
+
+function renderStudentProgress(el){
+  const u = currentUser;
+  const pct = avgProgress(u);
+  const badge = getBadge(pct);
+  el.innerHTML = `
+    <div class="page-header">
+      <div class="page-title">My Progress</div>
+      <div class="page-sub">Track your learning journey and badges</div>
+    </div>
+    ${renderBadgesHTML(pct)}
+    <div class="g2" style="margin-bottom:28px;">
+      <div class="card">
+        <div class="font-syne fw-700 mb-16">Overall Progress</div>
+        <div style="display:flex;align-items:center;gap:16px;">
+          <div style="font-family:'Syne',sans-serif;font-size:2.8rem;font-weight:800;">${pct}%</div>
+          <div>
+            <div class="fs-sm fw-600">${badge.name} Badge</div>
+            <div class="fs-xs text-muted">Next: ${badge.next}</div>
+          </div>
+        </div>
+        <div class="progress-bar mt-12" style="height:10px;"><div class="progress-fill" style="width:${pct}%"></div></div>
+      </div>
+      <div class="card">
+        <div class="font-syne fw-700 mb-16">Stats</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div class="flex justify-between fs-sm"><span class="text-muted">Courses Enrolled</span><span class="fw-600">${u.enrolled.length}</span></div>
+          <div class="flex justify-between fs-sm"><span class="text-muted">Lessons Completed</span><span class="fw-600">${totalLessonsDone(u)}</span></div>
+          <div class="flex justify-between fs-sm"><span class="text-muted">Assignments Pending</span><span class="fw-600">${pendingAssignments(u).length}</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="section-hd">Per Course Progress</div>
+    ${u.enrolled.map(cid=>{
+      const c = DB.courses.find(x=>x.id===cid);
+      if(!c)return '';
+      const p = u.progress[cid];
+      const pctC = p?.pct||0;
+      return `<div class="card mb-16">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <div>
+            <div class="font-syne fw-700 fs-sm">${c.name}</div>
+            <div class="text-muted fs-xs">by ${c.instructor}</div>
+          </div>
+          <span class="fw-700">${pctC}%</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${pctC}%"></div></div>
+        <div class="flex justify-between fs-xs text-muted mt-4">
+          <span>${p?.done?.length||0} / ${c.lessons.length} lessons</span>
+          <button class="btn btn-ghost btn-sm" style="padding:4px 10px;font-size:0.72rem;" onclick="openCourse(${c.id})">Open →</button>
+        </div>
+      </div>`;
+    }).join('')}`;
+}
+
+// ════════════
+// INSTRUCTOR PAGES
+// ════════════
+function renderInstructorDashboard(el){
+  const u = currentUser;
+  const myCourses = DB.courses.filter(c=>c.instructorId===u.id);
+  const myAssignments = DB.assignments.filter(a=>a.instructorId===u.id);
+  const mySubs = DB.submissions.filter(s=>myAssignments.find(a=>a.id===s.assignmentId));
+  const totalStudents = myCourses.reduce((acc,c)=>acc+c.students,0);
+  el.innerHTML = `
+    <div class="page-header">
+      <div class="page-title">Instructor Dashboard</div>
+      <div class="page-sub">Manage your courses and students</div>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-label">My Courses</div><div class="stat-val">${myCourses.length}</div><div class="stat-delta">${myCourses.filter(c=>c.status==='approved').length} live</div></div>
+      <div class="stat-card"><div class="stat-label">Total Students</div><div class="stat-val">${totalStudents}</div><div class="stat-delta">↑ active learners</div></div>
+      <div class="stat-card"><div class="stat-label">Assignments</div><div class="stat-val">${myAssignments.length}</div><div class="stat-delta">created</div></div>
+      <div class="stat-card"><div class="stat-label">Submissions</div><div class="stat-val">${mySubs.length}</div><div class="stat-delta">${mySubs.filter(s=>s.grade==null).length} to grade</div></div>
+    </div>
+    <div class="section-hd">My Courses</div>
+    <div class="course-grid">
+      ${myCourses.slice(0,3).map(c=>`
+        <div class="course-card" onclick="navToId('i-courses')">
+          <div class="course-thumb ${c.thumb}">${c.icon}</div>
+          <div class="course-body">
+            <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:4px;">
+              <div class="course-name" style="font-size:0.88rem;">${c.name}</div>
+              <span class="tag ${c.status==='approved'?'tag-green':'tag-yellow'}">${c.status==='approved'?'Live':'Pending'}</span>
+            </div>
+            <div class="course-meta"><span>👥 ${c.students}</span><span>📺 ${c.lessons.length} lessons</span></div>
+          </div>
+        </div>`).join('')}
+    </div>`;
+}
+
+function renderInstructorCourses(el){
+  const u = currentUser;
+  const myCourses = DB.courses.filter(c=>c.instructorId===u.id);
+  el.innerHTML = `
+    <div class="page-header">
+      <div style="display:flex;justify-content:space-between;align-items:start;">
+        <div><div class="page-title">My Courses</div><div class="page-sub">Upload lessons and manage content</div></div>
+        <button class="btn btn-primary" onclick="openModal('create-course')">+ New Course</button>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:16px;">
+      ${myCourses.map(c=>`
+        <div class="card">
+          <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+            <div style="font-size:2rem;">${c.icon}</div>
+            <div style="flex:1;">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+                <div class="font-syne fw-700">${c.name}</div>
+                <span class="tag ${c.status==='approved'?'tag-green':'tag-yellow'}">${c.status==='approved'?'Live':'Pending Approval'}</span>
+              </div>
+              <div class="text-muted fs-xs">📺 ${c.lessons.length} lessons &nbsp;·&nbsp; 👥 ${c.students} students</div>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn-ghost btn-sm" onclick="openUploadLesson(${c.id})">+ Lesson</button>
+              <button class="btn btn-indigo btn-sm" onclick="viewLessons(${c.id})">View Lessons</button>
+            </div>
+          </div>
+          <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px;">
+            <div class="fs-xs text-muted fw-600" style="text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px;">Lessons</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;">
+              ${c.lessons.map((l,i)=>`<span class="chip">L${i+1}: ${l.title}</span>`).join('')}
+            </div>
+          </div>
+        </div>`).join('')}
+    </div>`;
+}
+
+function renderInstructorAssignments(el){
+  const u = currentUser;
+  const myAssignments = DB.assignments.filter(a=>a.instructorId===u.id);
+  el.innerHTML = `
+    <div class="page-header">
+      <div style="display:flex;justify-content:space-between;align-items:start;">
+        <div><div class="page-title">Assignments</div><div class="page-sub">Create and manage assignments for your courses</div></div>
+        <button class="btn btn-primary" onclick="openModal('create-assignment')">+ New Assignment</button>
+      </div>
+    </div>
+    <div id="assignments-list">
+      ${myAssignments.length===0?`<div class="empty"><div class="empty-icon">📋</div><p>No assignments yet. Create one!</p></div>`:''}
+      ${myAssignments.map(a=>{
+        const c = DB.courses.find(x=>x.id===a.courseId);
+        const subs = DB.submissions.filter(s=>s.assignmentId===a.id);
+        return `<div class="card mb-16">
+          <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px;">
+            <div>
+              <div class="font-syne fw-700">${a.title}</div>
+              <div class="text-muted fs-xs mt-4">📚 ${c?.name} &nbsp;·&nbsp; Due: ${a.due} &nbsp;·&nbsp; Max: ${a.maxScore} pts</div>
+            </div>
+            <span class="tag tag-blue">${subs.length} submissions</span>
+          </div>
+          <p class="fs-sm text-muted">${a.desc}</p>
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+
+function renderInstructorSubmissions(el){
+  const u = currentUser;
+  const myAssignments = DB.assignments.filter(a=>a.instructorId===u.id);
+  const mySubs = DB.submissions.filter(s=>myAssignments.find(a=>a.id===s.assignmentId));
+  el.innerHTML = `
+    <div class="page-header">
+      <div class="page-title">Submissions</div>
+      <div class="page-sub">Review and grade student submissions</div>
+    </div>
+    ${mySubs.length===0?`<div class="empty"><div class="empty-icon">📭</div><p>No submissions yet</p></div>`:''}
+    <div class="card" style="padding:0;overflow:hidden;">
+      ${mySubs.length>0?`<table>
+        <thead><tr><th>Student</th><th>Assignment</th><th>Course</th><th>Date</th><th>Grade</th><th>Action</th></tr></thead>
+        <tbody>
+          ${mySubs.map(s=>{
+            const a = DB.assignments.find(x=>x.id===s.assignmentId);
+            const c = DB.courses.find(x=>x.id===a?.courseId);
+            return `<tr>
+              <td><div style="font-weight:600;">${s.studentName}</div></td>
+              <td>${a?.title}</td>
+              <td class="text-muted">${c?.name}</td>
+              <td class="text-muted">${s.date}</td>
+              <td>${s.grade!=null?`<span class="tag tag-green">${s.grade}/${a?.maxScore}</span>`:`<span class="tag tag-yellow">Pending</span>`}</td>
+              <td>
+                ${s.grade==null?`<button class="btn btn-primary btn-sm" onclick="gradeSubmission(${s.id},${a?.maxScore})">Grade</button>`:`<span class="text-muted fs-xs">Graded</span>`}
+              </td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>`:''}
+    </div>`;
+}
+
+// ════════════
+// ADMIN PAGES
+// ════════════
+function renderAdminOverview(el){
+  const approved = DB.instructors.filter(i=>i.status==='approved').length;
+  const pending  = DB.instructors.filter(i=>i.status==='pending').length;
+  const liveCourses = DB.courses.filter(c=>c.status==='approved').length;
+  const pendingC = DB.courses.filter(c=>c.status==='pending').length;
+  el.innerHTML = `
+    <div class="page-header">
+      <div class="page-title">Admin Overview</div>
+      <div class="page-sub">Platform management at a glance</div>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-label">Total Students</div><div class="stat-val">${DB.students.length}</div><div class="stat-delta">active learners</div></div>
+      <div class="stat-card"><div class="stat-label">Instructors</div><div class="stat-val">${approved}</div><div class="stat-delta">${pending} pending${pending>0?'<span class="dot"></span>':''}</div></div>
+      <div class="stat-card"><div class="stat-label">Live Courses</div><div class="stat-val">${liveCourses}</div><div class="stat-delta">${pendingC} pending${pendingC>0?'<span class="dot"></span>':''}</div></div>
+      <div class="stat-card"><div class="stat-label">Assignments</div><div class="stat-val">${DB.assignments.length}</div><div class="stat-delta">${DB.submissions.length} submissions</div></div>
+    </div>
+    <div class="g2">
+      <div class="card">
+        <div class="font-syne fw-700 mb-16">Pending Actions${pending+pendingC>0?'<span class="dot" style="margin-left:6px;"></span>':''}</div>
+        ${pending>0?`<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);">
+          <span class="fs-sm">Instructor approvals</span>
+          <span style="display:flex;align-items:center;gap:8px;"><span class="tag tag-yellow">${pending} pending</span><button class="btn btn-ghost btn-sm" onclick="navToId('a-instructors')">Review →</button></span>
+        </div>`:''}
+        ${pendingC>0?`<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;">
+          <span class="fs-sm">Course approvals</span>
+          <span style="display:flex;align-items:center;gap:8px;"><span class="tag tag-yellow">${pendingC} pending</span><button class="btn btn-ghost btn-sm" onclick="navToId('a-courses')">Review →</button></span>
+        </div>`:''}
+        ${pending===0&&pendingC===0?`<p class="text-muted fs-sm">All caught up! 🎉</p>`:''}
+      </div>
+      <div class="card">
+        <div class="font-syne fw-700 mb-16">Badge Distribution</div>
+        ${['master','gold','silver','bronze'].map(b=>{
+          const count = DB.students.filter(s=>s.badge===b).length;
+          const icons = {master:'👑',gold:'🥇',silver:'🥈',bronze:'🥉'};
+          const pcts = {master:5,gold:30,silver:55,bronze:80};
+          return `<div style="margin-bottom:10px;">
+            <div style="display:flex;justify-content:space-between;font-size:0.8rem;margin-bottom:4px;"><span>${icons[b]} ${b[0].toUpperCase()+b.slice(1)}</span><span class="text-muted">${count} students</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:${pcts[b]}%"></div></div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+}
+
+function renderAdminInstructors(el){
+  el.innerHTML = `
+    <div class="page-header">
+      <div class="page-title">Instructors</div>
+      <div class="page-sub">Approve and manage instructors</div>
+    </div>
+    <div class="section-hd">⏳ Pending Approval</div>
+    <div class="card" style="padding:0;overflow:hidden;margin-bottom:24px;" id="pending-instructors-wrap">
+      ${renderPendingInstructorsTable()}
+    </div>
+    <div class="section-hd">✅ Active Instructors</div>
+    <div class="card" style="padding:0;overflow:hidden;" id="active-instructors-wrap">
+      ${renderActiveInstructorsTable()}
+    </div>`;
+}
+
+function renderPendingInstructorsTable(){
+  const pending = DB.instructors.filter(i=>i.status==='pending');
+  if(pending.length===0) return `<div class="empty"><div class="empty-icon">✅</div><p>No pending approvals!</p></div>`;
+  return `<table><thead><tr><th>Instructor</th><th>Email</th><th>Specialization</th><th>Actions</th></tr></thead><tbody>
+    ${pending.map(i=>`<tr>
+      <td><div style="font-weight:600;">${i.name}</div></td>
+      <td class="text-muted">${i.email}</td>
+      <td><span class="chip">${i.specialization}</span></td>
+      <td><div style="display:flex;gap:8px;">
+        <button class="btn btn-primary btn-sm" onclick="approveInstructor(${i.id})">✓ Approve</button>
+        <button class="btn btn-danger btn-sm" onclick="rejectInstructor(${i.id})">✗ Reject</button>
+      </div></td>
+    </tr>`).join('')}
+  </tbody></table>`;
+}
+
+function renderActiveInstructorsTable(){
+  const active = DB.instructors.filter(i=>i.status==='approved');
+  if(active.length===0) return `<div class="empty"><p>No active instructors yet</p></div>`;
+  return `<table><thead><tr><th>Instructor</th><th>Specialization</th><th>Courses</th><th>Status</th><th>Action</th></tr></thead><tbody>
+    ${active.map(i=>`<tr>
+      <td><div style="font-weight:600;">${i.name}</div><div class="text-muted" style="font-size:0.72rem;">${i.email}</div></td>
+      <td><span class="chip">${i.specialization}</span></td>
+      <td>${DB.courses.filter(c=>c.instructorId===i.id).length}</td>
+      <td><span class="tag tag-green">Active</span></td>
+      <td><button class="btn btn-danger btn-sm" onclick="suspendInstructor(${i.id})">Suspend</button></td>
+    </tr>`).join('')}
+  </tbody></table>`;
+}
+
+function renderAdminCourses(el){
+  el.innerHTML = `
+    <div class="page-header">
+      <div class="page-title">Courses</div>
+      <div class="page-sub">Review and approve courses</div>
+    </div>
+    <div class="section-hd">⏳ Pending Approval</div>
+    <div id="pending-courses-wrap" class="card" style="padding:0;overflow:hidden;margin-bottom:24px;">
+      ${renderPendingCoursesTable()}
+    </div>
+    <div class="section-hd">✅ Live Courses</div>
+    <div class="card" style="padding:0;overflow:hidden;">
+      <table><thead><tr><th>Course</th><th>Instructor</th><th>Lessons</th><th>Students</th><th>Status</th></tr></thead>
+      <tbody>
+        ${DB.courses.filter(c=>c.status==='approved').map(c=>`<tr>
+          <td><div style="font-weight:600;">${c.icon} ${c.name}</div></td>
+          <td class="text-muted">${c.instructor}</td>
+          <td>${c.lessons.length}</td>
+          <td>${c.students}</td>
+          <td><span class="tag tag-green">Live</span></td>
+        </tr>`).join('')}
+      </tbody></table>
+    </div>`;
+}
+
+function renderPendingCoursesTable(){
+  const pending = DB.courses.filter(c=>c.status==='pending');
+  if(pending.length===0) return `<div class="empty"><div class="empty-icon">✅</div><p>No pending courses!</p></div>`;
+  return `<table><thead><tr><th>Course</th><th>Instructor</th><th>Lessons</th><th>Actions</th></tr></thead><tbody>
+    ${pending.map(c=>`<tr>
+      <td><div style="font-weight:600;">${c.icon} ${c.name}</div></td>
+      <td class="text-muted">${c.instructor}</td>
+      <td>${c.lessons.length}</td>
+      <td><div style="display:flex;gap:8px;">
+        <button class="btn btn-primary btn-sm" onclick="approveCourse(${c.id})">✓ Approve</button>
+        <button class="btn btn-danger btn-sm" onclick="rejectCourse(${c.id})">✗ Reject</button>
+      </div></td>
+    </tr>`).join('')}
+  </tbody></table>`;
+}
+
+function renderAdminStudents(el){
+  el.innerHTML = `
+    <div class="page-header">
+      <div class="page-title">Students</div>
+      <div class="page-sub">Monitor student activity and progress</div>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden;">
+      <table><thead><tr><th>Student</th><th>Enrolled Courses</th><th>Overall Progress</th><th>Badge</th></tr></thead>
+      <tbody>
+        ${DB.students.map(s=>{
+          const pct = avgProgressById(s);
+          const badge = getBadge(pct);
+          const icons = {master:'👑',gold:'🥇',silver:'🥈',bronze:'🥉',none:'—'};
+          return `<tr>
+            <td><div style="font-weight:600;">${s.name}</div><div class="text-muted" style="font-size:0.72rem;">${s.email}</div></td>
+            <td>${s.enrolled.length} courses</td>
+            <td>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <div class="progress-bar" style="width:120px;"><div class="progress-fill" style="width:${pct}%"></div></div>
+                <span class="fs-xs">${pct}%</span>
+              </div>
+            </td>
+            <td>${icons[s.badge]||'—'} <span class="fs-xs text-muted">${badge.name}</span></td>
+          </tr>`;
+        }).join('')}
+      </tbody></table>
+    </div>`;
+}
+
+// ════════════════════════════════════════
+// MODAL SYSTEM
+// ════════════════════════════════════════
+function openModal(type, data){
+  const container = document.getElementById('modal-container');
+  if(type==='create-assignment'){
+    const myCourses = DB.courses.filter(c=>c.instructorId===currentUser.id && c.status==='approved');
+    container.innerHTML = `<div class="modal-overlay" onclick="closeModalIf(event)">
+      <div class="modal">
+        <div class="modal-title">📋 Create Assignment <button class="modal-close" onclick="closeModal()">✕</button></div>
+        ${myCourses.length===0?`<p class="text-muted fs-sm">You need an approved course first.</p>`:`
+        <div class="form-group"><label class="form-label">Course</label>
+          <select class="form-input" id="m-course">${myCourses.map(c=>`<option value="${c.id}">${c.name}</option>`).join('')}</select></div>
+        <div class="form-group"><label class="form-label">Assignment Title</label><input class="form-input" id="m-title" placeholder="e.g. Build a Portfolio Page"></div>
+        <div class="form-group"><label class="form-label">Instructions</label><textarea class="form-input" id="m-desc" placeholder="Describe what students need to do..."></textarea></div>
+        <div class="g2">
+          <div class="form-group"><label class="form-label">Due Date</label><input class="form-input" type="date" id="m-due"></div>
+          <div class="form-group"><label class="form-label">Max Score</label><input class="form-input" type="number" id="m-score" value="100"></div>
+        </div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="createAssignment()">Create Assignment</button>`}
+      </div></div>`;
+  }
+  if(type==='create-course'){
+    container.innerHTML = `<div class="modal-overlay" onclick="closeModalIf(event)">
+      <div class="modal">
+        <div class="modal-title">📚 Create New Course <button class="modal-close" onclick="closeModal()">✕</button></div>
+        <div class="form-group"><label class="form-label">Course Name</label><input class="form-input" id="m-cname" placeholder="e.g. Advanced JavaScript"></div>
+        <div class="form-group"><label class="form-label">Description</label><textarea class="form-input" id="m-cdesc" placeholder="What will students learn?"></textarea></div>
+        <div class="form-group"><label class="form-label">Category</label>
+          <select class="form-input" id="m-ccat">
+            <option>Programming</option><option>Design</option><option>Data Science</option><option>Marketing</option><option>Business</option>
+          </select></div>
+        <div class="upload-zone"><div style="font-size:2rem;margin-bottom:8px;">📁</div><div class="text-muted fs-sm">Drop course materials or <span class="text-accent" style="cursor:pointer;">browse</span></div></div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="createCourse()">Submit for Approval</button>
+      </div></div>`;
+  }
+  if(type==='upload-lesson' && data){
+    const c = DB.courses.find(x=>x.id===data);
+    container.innerHTML = `<div class="modal-overlay" onclick="closeModalIf(event)">
+      <div class="modal">
+        <div class="modal-title">📤 Upload Lesson to "${c?.name}" <button class="modal-close" onclick="closeModal()">✕</button></div>
+        <div class="form-group"><label class="form-label">Lesson Title</label><input class="form-input" id="m-ltitle" placeholder="e.g. Advanced CSS Animations"></div>
+        <div class="form-group"><label class="form-label">Duration</label><input class="form-input" id="m-ldur" placeholder="e.g. 20 min"></div>
+        <div class="form-group"><label class="form-label">Lesson Notes</label><textarea class="form-input" id="m-lnotes" placeholder="Lesson content or description..."></textarea></div>
+        <div class="upload-zone"><div style="font-size:2rem;margin-bottom:8px;">🎬</div><div class="text-muted fs-sm">Drop video/PDF or <span class="text-accent" style="cursor:pointer;">browse</span></div></div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="uploadLesson(${data})">Upload Lesson</button>
+      </div></div>`;
+  }
+  if(type==='course-detail' && data){
+    const c = DB.courses.find(x=>x.id===data);
+    const u = currentUser;
+    const enrolled = u.enrolled?.includes(c.id);
+    const progress = u.progress?.[c.id];
+    container.innerHTML = `<div class="modal-overlay" onclick="closeModalIf(event)">
+      <div class="modal" style="max-width:600px;">
+        <div class="modal-title">${c.icon} ${c.name} <button class="modal-close" onclick="closeModal()">✕</button></div>
+        <div style="font-size:0.82rem;color:var(--muted);margin-bottom:16px;">by ${c.instructor} &nbsp;·&nbsp; ${c.students} students &nbsp;·&nbsp; ${c.lessons.length} lessons</div>
+        ${enrolled?`<div class="progress-bar mb-16" style="height:8px;"><div class="progress-fill" style="width:${progress?.pct||0}%"></div></div>`:''}
+        <div class="lesson-list" style="padding:0;gap:6px;">
+          ${c.lessons.map((l,i)=>{
+            const done = enrolled && progress?.done?.includes(l.id);
+            return `<div class="lesson-item ${done?'done':''} ${enrolled&&progress?.done?.length===i&&!done?'active':''}">
+              <div class="lesson-num">${done?'✓':i+1}</div>
+              <div style="flex:1;"><div style="font-size:0.85rem;font-weight:${done?'400':'500'};${done?'color:var(--muted)':''}">${l.title}</div><div class="fs-xs text-muted">${l.dur}</div></div>
+              ${enrolled?`<button class="btn btn-ghost btn-sm" style="padding:4px 10px;font-size:0.72rem;" onclick="markLessonDone(${c.id},${l.id})">✓ Done</button>`:''}
+            </div>`;
+          }).join('')}
+        </div>
+        <div style="margin-top:18px;display:flex;gap:10px;">
+          ${enrolled
+            ? `<button class="btn btn-primary" onclick="markLessonDone(${c.id},${c.lessons.find(l=>!progress?.done?.includes(l.id))?.id});closeModal()">▶ Continue</button>`
+            : `<button class="btn btn-primary" onclick="enrollCourse(${c.id});closeModal()">+ Enroll Now</button>`}
+          <button class="btn btn-ghost" onclick="closeModal()">Close</button>
+        </div>
+      </div></div>`;
+  }
+  if(type==='grade' && data){
+    const {subId,maxScore} = data;
+    container.innerHTML = `<div class="modal-overlay" onclick="closeModalIf(event)">
+      <div class="modal">
+        <div class="modal-title">✏️ Grade Submission <button class="modal-close" onclick="closeModal()">✕</button></div>
+        <div class="form-group"><label class="form-label">Score (max ${maxScore})</label><input class="form-input" type="number" id="m-grade" min="0" max="${maxScore}" placeholder="e.g. 85"></div>
+        <div class="form-group"><label class="form-label">Feedback (optional)</label><textarea class="form-input" id="m-feedback" placeholder="Leave feedback for the student..."></textarea></div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="saveGrade(${subId},${maxScore})">Save Grade</button>
+      </div></div>`;
+  }
+  if(type==='submit-assignment' && data){
+    const a = DB.assignments.find(x=>x.id===data);
+    container.innerHTML = `<div class="modal-overlay" onclick="closeModalIf(event)">
+      <div class="modal">
+        <div class="modal-title">📤 Submit: ${a?.title} <button class="modal-close" onclick="closeModal()">✕</button></div>
+        <div class="upload-zone"><div style="font-size:2rem;margin-bottom:8px;">📁</div><div class="text-muted fs-sm">Drop your file or <span class="text-accent" style="cursor:pointer;">browse</span></div><div class="fs-xs text-muted mt-4">ZIP, PDF, or any format</div></div>
+        <div class="form-group"><label class="form-label">Notes (optional)</label><textarea class="form-input" id="m-snotes" placeholder="Any notes for your instructor..."></textarea></div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="doSubmitAssignment(${data})">Submit Assignment</button>
+      </div></div>`;
+  }
+}
+
+function closeModal(){ document.getElementById('modal-container').innerHTML=''; }
+function closeModalIf(e){ if(e.target.classList.contains('modal-overlay')) closeModal(); }
+
+// ════════════════════════════════════════
+// ACTIONS
+// ════════════════════════════════════════
+function enrollCourse(id){
+  const u = currentUser;
+  if(u.enrolled.includes(id)){toast('Already enrolled','error');return;}
+  u.enrolled.push(id);
+  if(!u.progress) u.progress={};
+  u.progress[id]={done:[],pct:0};
+  const c = DB.courses.find(x=>x.id===id);
+  c.students++;
+  // also update in DB.students
+  const dbS = DB.students.find(s=>s.id===u.id);
+  if(dbS){dbS.enrolled.push(id);if(!dbS.progress)dbS.progress={};dbS.progress[id]={done:[],pct:0};}
+  toast(`Enrolled in "${c.name}"!`,'success');
+  renderPage('s-browse', document.getElementById('page-s-browse'));
+  renderPage('s-home', document.getElementById('page-s-home'));
+}
+
+function openCourse(id){
+  openModal('course-detail',id);
+}
+
+function markLessonDone(courseId, lessonId){
+  if(!lessonId)return;
+  const u = currentUser;
+  if(!u.progress) u.progress={};
+  if(!u.progress[courseId]) u.progress[courseId]={done:[],pct:0};
+  const p = u.progress[courseId];
+  if(!p.done.includes(lessonId)){
+    p.done.push(lessonId);
+    const c = DB.courses.find(x=>x.id===courseId);
+    p.pct = Math.round((p.done.length/c.lessons.length)*100);
+    // sync to DB
+    const dbS = DB.students.find(s=>s.id===u.id);
+    if(dbS){dbS.progress[courseId]=p;}
+    u.badge = getBadge(avgProgress(u)).key;
+    toast('Lesson marked complete! ✓','success');
+    // re-open modal
+    setTimeout(()=>openModal('course-detail',courseId),300);
+  } else {
+    toast('Already marked done','error');
+  }
+}
+
+function createAssignment(){
+  const title=document.getElementById('m-title')?.value.trim();
+  const desc=document.getElementById('m-desc')?.value.trim();
+  const courseId=parseInt(document.getElementById('m-course')?.value);
+  const due=document.getElementById('m-due')?.value;
+  const maxScore=parseInt(document.getElementById('m-score')?.value)||100;
+  if(!title){toast('Please enter a title','error');return;}
+  DB.assignments.push({id:DB.nextAssignmentId++,courseId,title,desc:desc||'No description',due:due||'TBD',maxScore,instructorId:currentUser.id});
+  toast(`Assignment "${title}" created!`,'success');
+  closeModal();
+  renderPage('i-assignments',document.getElementById('page-i-assignments'));
+  // Notify enrolled students (visual only)
+  setTimeout(()=>toast('Students enrolled in this course were notified!','success'),600);
+}
+
+function createCourse(){
+  const name=document.getElementById('m-cname')?.value.trim();
+  if(!name){toast('Please enter a course name','error');return;}
+  const newCourse={id:DB.courses.length+1,name,instructor:currentUser.name,instructorId:currentUser.id,thumb:`thumb-${(DB.courses.length%6)+1}`,icon:'📘',lessons:[],status:'pending',students:0};
+  DB.courses.push(newCourse);
+  toast(`"${name}" submitted for approval!`,'success');
+  closeModal();
+  renderPage('i-courses',document.getElementById('page-i-courses'));
+}
+
+function openUploadLesson(courseId){ openModal('upload-lesson',courseId); }
+
+function uploadLesson(courseId){
+  const title=document.getElementById('m-ltitle')?.value.trim();
+  const dur=document.getElementById('m-ldur')?.value.trim();
+  if(!title){toast('Please enter a lesson title','error');return;}
+  const c=DB.courses.find(x=>x.id===courseId);
+  if(!c)return;
+  c.lessons.push({id:c.lessons.length+1,title,dur:dur||'?? min'});
+  toast(`Lesson "${title}" uploaded!`,'success');
+  closeModal();
+  renderPage('i-courses',document.getElementById('page-i-courses'));
+}
+
+function gradeSubmission(subId,maxScore){ openModal('grade',{subId,maxScore}); }
+
+function saveGrade(subId,maxScore){
+  const grade=parseInt(document.getElementById('m-grade')?.value);
+  if(isNaN(grade)||grade<0||grade>maxScore){toast(`Enter a valid score (0-${maxScore})`,'error');return;}
+  const sub=DB.submissions.find(s=>s.id===subId);
+  if(sub){sub.grade=grade;}
+  toast(`Graded! Score: ${grade}/${maxScore}`,'success');
+  closeModal();
+  renderPage('i-submissions',document.getElementById('page-i-submissions'));
+}
+
+function submitAssignment(assignmentId){ openModal('submit-assignment',assignmentId); }
+
+function doSubmitAssignment(assignmentId){
+  const u=currentUser;
+  if(DB.submissions.find(s=>s.assignmentId===assignmentId&&s.studentId===u.id)){toast('Already submitted!','error');return;}
+  DB.submissions.push({id:DB.nextSubmissionId++,assignmentId,studentId:u.id,studentName:u.name,file:'submission.zip',date:'Just now',grade:null});
+  toast('Assignment submitted!','success');
+  closeModal();
+  renderPage('s-assignments',document.getElementById('page-s-assignments'));
+}
+
+function approveInstructor(id){
+  const i=DB.instructors.find(x=>x.id===id);
+  if(i){i.status='approved';toast(`${i.name} approved!`,'success');renderPage('a-instructors',document.getElementById('page-a-instructors'));}
+}
+function rejectInstructor(id){
+  const i=DB.instructors.find(x=>x.id===id);
+  if(i){DB.instructors.splice(DB.instructors.indexOf(i),1);toast(`${i.name} rejected.`,'error');renderPage('a-instructors',document.getElementById('page-a-instructors'));}
+}
+function suspendInstructor(id){
+  const i=DB.instructors.find(x=>x.id===id);
+  if(i){i.status='suspended';toast(`${i.name} suspended.`,'error');renderPage('a-instructors',document.getElementById('page-a-instructors'));}
+}
+function approveCourse(id){
+  const c=DB.courses.find(x=>x.id===id);
+  if(c){c.status='approved';toast(`"${c.name}" is now live!`,'success');renderPage('a-courses',document.getElementById('page-a-courses'));}
+}
+function rejectCourse(id){
+  const c=DB.courses.find(x=>x.id===id);
+  if(c){DB.courses.splice(DB.courses.indexOf(c),1);toast(`"${c.name}" rejected.`,'error');renderPage('a-courses',document.getElementById('page-a-courses'));}
+}
+
+// ════════════════════════════════════════
+// HELPERS
+// ════════════════════════════════════════
+function navToId(pageId){
+  const tab = document.querySelector(`[onclick*="navTo('${pageId}'"]`)||
+              [...document.querySelectorAll('.nav-tab')].find(t=>t.getAttribute('onclick')?.includes(`'${pageId}'`));
+  if(tab) tab.click();
+  else showPage(pageId);
+}
+
+function avgProgress(u){
+  if(!u.enrolled||u.enrolled.length===0)return 0;
+  const total = u.enrolled.reduce((acc,cid)=>{
+    const p=u.progress?.[cid];
+    return acc+(p?.pct||0);
+  },0);
+  return Math.round(total/u.enrolled.length);
+}
+function avgProgressById(s){
+  if(!s.enrolled||s.enrolled.length===0)return 0;
+  const total=s.enrolled.reduce((acc,cid)=>{const p=s.progress?.[cid];return acc+(p?.pct||0);},0);
+  return Math.round(total/s.enrolled.length);
+}
+function totalLessonsDone(u){
+  if(!u.progress)return 0;
+  return Object.values(u.progress).reduce((acc,p)=>acc+(p?.done?.length||0),0);
+}
+function pendingAssignments(u){
+  return DB.assignments.filter(a=>u.enrolled?.includes(a.courseId)&&!DB.submissions.find(s=>s.assignmentId===a.id&&s.studentId===u.id));
+}
+function getBadge(pct){
+  if(pct>=100) return {name:'Master',key:'master',next:'Perfect!',icon:'👑'};
+  if(pct>=90)  return {name:'Gold',  key:'gold',  next:'100% for Master',icon:'🥇'};
+  if(pct>=50)  return {name:'Silver',key:'silver',next:'90% for Gold',icon:'🥈'};
+  if(pct>=25)  return {name:'Bronze',key:'bronze',next:'50% for Silver',icon:'🥉'};
+  return {name:'No Badge',key:'none',next:'25% for Bronze',icon:'🎯'};
+}
+function renderBadgesHTML(pct){
+  const levels=[{key:'bronze',pct:25,icon:'🥉',label:'Bronze'},{key:'silver',pct:50,icon:'🥈',label:'Silver'},{key:'gold',pct:90,icon:'🥇',label:'Gold'},{key:'master',pct:100,icon:'👑',label:'Master'}];
+  return `<div class="badges-row">${levels.map(b=>`
+    <div class="badge badge-${b.key} ${pct>=b.pct?'earned':'locked'}">
+      <div class="badge-icon">${b.icon}</div>
+      <div class="badge-name">${b.label}</div>
+      <div class="badge-req">${b.pct}% complete</div>
+    </div>`).join('')}</div>`;
+}
+function renderEnrolledCourseCard(c,u){
+  const p=u.progress?.[c.id];
+  const pct=p?.pct||0;
+  return `<div class="course-card" onclick="openCourse(${c.id})">
+    <div class="course-thumb ${c.thumb}">${c.icon}</div>
+    <div class="course-body">
+      <div class="course-name">${c.name}</div>
+      <div class="course-instructor">by ${c.instructor}</div>
+      <div class="progress-bar" style="margin:10px 0 4px;"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <div style="display:flex;justify-content:space-between;font-size:0.72rem;color:var(--muted);"><span>${p?.done?.length||0}/${c.lessons.length} lessons</span><span>${pct}%</span></div>
+    </div>
+  </div>`;
+}
+
+function toast(msg,type='success'){
+  const wrap=document.getElementById('toast-wrap');
+  const el=document.createElement('div');
+  el.className=`toast toast-${type}`;
+  el.textContent=msg;
+  wrap.appendChild(el);
+  setTimeout(()=>el.remove(),3100);
+}
+</script>
+</body>
+</html>
